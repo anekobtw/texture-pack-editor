@@ -1,0 +1,14 @@
+{
+	"geode": "3.5.0",
+	"gd": {
+		"win": "2.206",
+		"android": "2.206",
+		"mac": "2.206",
+		"ios": "2.206"
+	},
+	"id": "anekobtw.texture_pack_editor",
+	"name": "texture pack editor",
+	"version": "v1.0.0",
+	"developer": "anekobtw",
+	"description": "Making texture packs inside Geometry Dash."
+}
