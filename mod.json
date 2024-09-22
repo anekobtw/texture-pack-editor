@@ -10,5 +10,12 @@
 	"name": "texture pack editor",
 	"version": "v1.0.0",
 	"developer": "anekobtw",
-	"description": "Making texture packs inside Geometry Dash."
+	"description": "Making texture packs inside Geometry Dash.",
+	"dependencies": [
+        {
+            "id": "spaghettdev.betterinputs",
+            "version": ">=v4.2.0-beta.1",
+            "importance": "required"
+        }
+    ]
 }

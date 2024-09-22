@@ -5,27 +5,46 @@
 #include <iostream>
 using namespace geode::prelude;
 
+
+std::string FileDialog() {
+    OPENFILENAME ofn;       
+    char szFile[260] = { 0 };  
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "PNG Photos\0*.PNG\0All Files\0*.*\0";
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn)) {
+        return ofn.lpstrFile;
+    } else {
+        CCLOG("File dialog failed: %d", CommDlgExtendedError());
+        return "";
+    }
+}
+
+
 class CustomPopup : public FLAlertLayer {
 private:
     InputNode* inputFileName;
 
-public:
-    bool init() {
-        if (!FLAlertLayer::init(150)) return false;
-
+    void setupUI() {
         auto screenSize = CCDirector::sharedDirector()->getWinSize();
 
         auto inputSpriteName = InputNode::create(300, "Sprite name");
         inputSpriteName->setPosition(ccp(screenSize.width / 2, screenSize.height / 3 * 2));
 
         inputFileName = InputNode::create(300, "File name");
-        inputFileName->setPosition(ccp(screenSize.width / 2, screenSize.height / 3 * 1));
+        inputFileName->setPosition(ccp(screenSize.width / 2, screenSize.height / 3));
 
         auto openFileDialogButton = CCMenuItemSpriteExtra::create(
             CCSprite::createWithSpriteFrameName("gj_folderBtn_001.png"),
             this, menu_selector(CustomPopup::openFileDialog)
         );
-        openFileDialogButton->setPosition(ccp(screenSize.width / 2 + 175, screenSize.height / 3 * 1));
+        openFileDialogButton->setPosition(ccp(screenSize.width / 2 + 175, screenSize.height / 3));
+
         auto menu = CCMenu::create();
         menu->setPosition(ccp(0, 0));
         menu->addChild(openFileDialogButton);
@@ -34,7 +53,13 @@ public:
         this->m_mainLayer->addChild(inputSpriteName);
         this->m_mainLayer->addChild(inputFileName);
         this->m_mainLayer->addChild(menu);
+    }
 
+public:
+    bool init() {
+        if (!FLAlertLayer::init(150)) return false;
+
+        setupUI();
         handleTouchPriority(this);
         return true;
     }
@@ -44,43 +69,11 @@ public:
     }
 
     void openFileDialog(CCObject*) {
-        std::string selectedFile = FileDialog();
-        if (!selectedFile.empty()) {
-            inputFileName->setString(selectedFile);
-            CCLOG("Selected file: %s", selectedFile.c_str());
-        }
-    }
-
-    std::string FileDialog() {
-        OPENFILENAME ofn;       // common dialog box structure
-        char szFile[260];      // buffer for file name
-
-        // Initialize OPENFILENAME
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = NULL;
-        ofn.lpstrFile = szFile;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = "All Files\0*.*\0Text Documents\0*.TXT\0";
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        
-        // Display the File Open dialog box
-        if (GetOpenFileName(&ofn)) {
-            return ofn.lpstrFile;
-        } else {
-            return "";
-        }
+        inputFileName->setString(FileDialog());
     }
 
     CREATE_FUNC(CustomPopup);
 };
-
 
 class $modify(MyMenuLayer, MenuLayer) {
 public:
@@ -103,5 +96,5 @@ public:
     void load_scene(CCObject*) {
         auto customPopup = CustomPopup::create();
         CCDirector::sharedDirector()->getRunningScene()->addChild(customPopup, 1000);
-     }
+    }
 };
